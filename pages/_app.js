@@ -1,7 +1,12 @@
-import '../styles/globals.css'
+import "../styles/globals.css";
+import MouseObserver from "../utils/MouseObserver";
 
 function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />
+  return (
+    <MouseObserver>
+      <Component {...pageProps} />
+    </MouseObserver>
+  );
 }
 
-export default MyApp
+export default MyApp;
