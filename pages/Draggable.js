@@ -5,27 +5,33 @@ const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
 const Draggable = (props) => {
   const draggable = useRef(null);
-  const [dragCoordinates, setDragCoordinates] = useState({ top: 0, left: 0 });
-  const { mouseX, mouseY, dragging, offset, stateDraggable } =
+  const [dragCoordinates, setDragCoordinates] = useState({
+    top: 0,
+    left: 0,
+  });
+  const [localZIndex, setLocalZIndex] = useState(0);
+  const { mouseX, mouseY, dragging, offset, stateDraggable, zIndex } =
     useContext(MouseContext);
 
   useEffect(() => {
     const dragArea = draggable.current.parentNode;
     const dragAreaRect = dragArea.getBoundingClientRect();
     const { uid: thisUid } = draggable.current.dataset;
-    if (dragging && thisUid === stateDraggable?.dataset?.uid) {
-      const anchorX = mouseX - offset.x;
-      const anchorY = mouseY - offset.y;
-      const relativePos = {
-        top: clamp((anchorY / dragAreaRect.height) * 100, 0, 100),
-        left: clamp((anchorX / dragAreaRect.width) * 100, 0, 100),
-      };
+    if (thisUid === stateDraggable?.dataset?.uid) {
+      setLocalZIndex(zIndex);
+      if (dragging) {
+        const anchorX = mouseX - offset.x;
+        const anchorY = mouseY - offset.y;
 
-      console.log(relativePos);
+        const relativePos = {
+          top: clamp((anchorY / dragAreaRect.height) * 100, 0, 100),
+          left: clamp((anchorX / dragAreaRect.width) * 100, 0, 100),
+        };
 
-      setDragCoordinates(relativePos);
+        setDragCoordinates(relativePos);
+      }
     }
-  }, [mouseX, mouseY, offset, dragging, stateDraggable]);
+  }, [mouseX, mouseY, offset, dragging, stateDraggable, zIndex]);
 
   return (
     <a
@@ -37,6 +43,7 @@ const Draggable = (props) => {
       style={{
         top: `${dragCoordinates.top}%`,
         left: `${dragCoordinates.left}%`,
+        zIndex: `${localZIndex}`,
       }}
     >
       <img
