@@ -1,9 +1,6 @@
 import Head from "next/head";
-import Image from "next/image";
-import styles from "../styles/Home.module.css";
-import Draggable from "./Draggable";
-import { useEffect, useState } from "react";
 import DragArea from "./DragArea";
+import MouseObserver from "../utils/MouseObserver";
 
 export default function Home() {
     return (
@@ -13,7 +10,9 @@ export default function Home() {
                 <meta name="description" content="Draggables Test" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <DragArea />
+            <MouseObserver>
+                <DragArea />
+            </MouseObserver>
         </div>
     );
 }
