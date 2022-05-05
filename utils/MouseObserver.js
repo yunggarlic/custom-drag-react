@@ -25,18 +25,19 @@ const MouseObserver = ({ children }) => {
     const handleMouseDown = useCallback((e) => {
         const draggable = e.target.parentNode;
         if (draggable?.dataset?.draggable) {
-            draggable.style.cursor = "move";
             const draggableRect = draggable.getBoundingClientRect();
             const { clientX: mouseX, clientY: mouseY } = e;
 
             const offsetX = mouseX - draggableRect.left;
             const offsetY = mouseY - draggableRect.top;
 
-            //set anchor position
             setOffset({ x: offsetX, y: offsetY });
             setZIndex((z) => z + 1);
             setDraggable(draggable);
             setDragging(true);
+
+            draggable.style.outline = "black dotted 2px";
+            draggable.style.cursor = "move";
         }
     }, []);
 
@@ -44,20 +45,20 @@ const MouseObserver = ({ children }) => {
     const handleMouseUp = useCallback(() => {
         if (draggable?.style?.cursor) draggable.style.cursor = "pointer";
         setOffset({ x: 0, y: 0 });
-        setDraggable({});
         setDragging(false);
     }, [draggable]);
 
     //reset state
     const handleMouseLeave = useCallback(() => {
         if (draggable?.style?.cursor) draggable.style.cursor = "pointer";
-        setDraggable({});
         setDragging(false);
         setOffset({ x: 0, y: 0 });
     }, [draggable]);
 
+    //does nothing, just to have for now
     const handleMouseEnter = useCallback((e) => {}, []);
 
+    //set drag element in state and push it to top layer
     const handleTouchStart = useCallback((e) => {
         const draggable = e.target.parentNode;
         if (draggable?.dataset?.draggable) {
@@ -68,12 +69,15 @@ const MouseObserver = ({ children }) => {
             const offsetY = mouseY - draggableRect.top;
 
             //set anchor position
-            setZIndex((z) => z + 1);
             setDraggable(draggable);
             setOffset({ x: offsetX, y: offsetY });
+            setZIndex((z) => z + 1);
+
+            draggable.style.outline = "black dotted 2px";
         }
     }, []);
 
+    //set coordinates as touch moves
     const handleTouchMove = useCallback((e) => {
         e.preventDefault();
         const { clientX, clientY } = e.touches[0];
@@ -81,19 +85,21 @@ const MouseObserver = ({ children }) => {
         setDragging(true);
     }, []);
 
+    //reset state
     const handleTouchEnd = useCallback((e) => {
         setOffset({ x: 0, y: 0 });
-        setDraggable({});
+        // setDraggable({});
         setDragging(false);
     }, []);
 
+    //reset state
     const handleTouchCancel = useCallback((e) => {
         setOffset({ x: 0, y: 0 });
-        setDraggable({});
+        // setDraggable({});
         setDragging(false);
     }, []);
 
-    //set up event listeners
+    //sets up event listeners
     useEffect(() => {
         document.addEventListener("mousemove", handleMouseMove, {
             passive: true,
