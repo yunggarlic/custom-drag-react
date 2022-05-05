@@ -8,14 +8,16 @@ const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 const Draggable = ({ coords, uid }) => {
     const [loaded, setLoaded] = useState(false);
     const draggable = useRef(null);
-    const [dragCoordinates, setDragCoordinates] = useLocalStorage(uid, {
-        top: 0,
-        left: 0,
-    });
+    // const [dragCoordinates, setDragCoordinates] = useLocalStorage(uid, {
+    //     top: 0,
+    //     left: 0,
+    // });
+    const [dragCoordinates, setDragCoordinates] = useState({ top: 0, left: 0 });
     const [localZIndex, setLocalZIndex] = useState(0);
     const { mouseX, mouseY, dragging, offset, stateDraggable, zIndex } =
         useContext(MouseContext);
 
+    //handles dragging
     useEffect(() => {
         const dragArea = draggable.current.parentNode;
         const dragAreaRect = dragArea.getBoundingClientRect();
@@ -33,44 +35,22 @@ const Draggable = ({ coords, uid }) => {
                 draggable.current.style.outline = "black dotted 2px";
 
                 setDragCoordinates(relativePos);
+                localStorage[`tf${uid}`] = JSON.stringify(relativePos);
             }
         } else {
             draggable.current.style.outline = "none";
         }
-    }, [
-        mouseX,
-        mouseY,
-        offset,
-        dragging,
-        stateDraggable,
-        zIndex,
-        setDragCoordinates,
-    ]);
+    }, [mouseX, mouseY, offset, dragging, stateDraggable, zIndex, uid]);
 
-    // useEffect(() => {
-    //     if (localStorage[`tf${uid}`]) {
-    //         setDragCoordinates(JSON.parse(localStorage[`tf${uid}`]));
-    //     }
-
-    //     if (loaded) {
-    //         if (!localStorage.getItem(`tf${uid}`)) {
-    //             localStorage[`tf${uid}`] = JSON.stringify(coords);
-    //             setDragCoordinates(coords);
-    //         }
-    //         // else {
-    //         //     const coordinates = localStorage[`tf${uid}`];
-    //         //     console.log(coordinates);
-    //         //     setDragCoordinates(coordinates);
-    //         // }
-    //     } else setLoaded(true);
-    // }, [coords, loaded, uid]);
-
+    //load coordinates from localStorage
     useEffect(() => {
-        console.log(dragCoordinates);
-        if (loaded && dragging) {
-            localStorage[`tf${uid}`] = JSON.stringify(dragCoordinates);
+        if (localStorage[`tf${uid}`]) {
+            setDragCoordinates(JSON.parse(localStorage[`tf${uid}`]));
+        } else {
+            localStorage[`tf${uid}`] = JSON.stringify(coords);
+            setDragCoordinates(coords);
         }
-    }, [dragCoordinates, uid, loaded, dragging]);
+    }, [coords, uid]);
 
     return (
         <a
@@ -80,8 +60,8 @@ const Draggable = ({ coords, uid }) => {
             data-draggable={true}
             className="absolute text-sm flex flex-col items-center pointer-events-none w-[90px]"
             style={{
-                top: `${dragCoordinates.top}%`,
-                left: `${dragCoordinates.left}%`,
+                top: `${dragCoordinates?.top}%`,
+                left: `${dragCoordinates?.left}%`,
                 zIndex: `${localZIndex}`,
             }}
         >
