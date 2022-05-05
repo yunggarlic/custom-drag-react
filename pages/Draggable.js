@@ -4,12 +4,10 @@ import Image from "next/image";
 
 const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
-const Draggable = (props) => {
+const Draggable = ({ coords, uid }) => {
+    const [loaded, setLoaded] = useState(false);
     const draggable = useRef(null);
-    const [dragCoordinates, setDragCoordinates] = useState({
-        top: 0,
-        left: 0,
-    });
+    const [dragCoordinates, setDragCoordinates] = useState({ top: 0, left: 0 });
     const [localZIndex, setLocalZIndex] = useState(0);
     const { mouseX, mouseY, dragging, offset, stateDraggable, zIndex } =
         useContext(MouseContext);
@@ -37,10 +35,34 @@ const Draggable = (props) => {
         }
     }, [mouseX, mouseY, offset, dragging, stateDraggable, zIndex]);
 
+    useEffect(() => {
+        if (localStorage[`tf${uid}`]) {
+            setDragCoordinates(JSON.parse(localStorage[`tf${uid}`]));
+        }
+
+        if (loaded) {
+            if (!localStorage.getItem(`tf${uid}`)) {
+                localStorage[`tf${uid}`] = JSON.stringify(coords);
+                setDragCoordinates(coords);
+            }
+            // else {
+            //     const coordinates = localStorage[`tf${uid}`];
+            //     console.log(coordinates);
+            //     setDragCoordinates(coordinates);
+            // }
+        } else setLoaded(true);
+    }, [coords, loaded, uid]);
+
+    useEffect(() => {
+        if (loaded && dragging) {
+            localStorage[`tf${uid}`] = JSON.stringify(dragCoordinates);
+        }
+    }, [dragCoordinates, uid, loaded, dragging]);
+
     return (
         <a
             ref={draggable}
-            data-uid={props.uid}
+            data-uid={uid}
             draggable="false"
             data-draggable={true}
             className="absolute text-sm flex flex-col items-center pointer-events-none w-[90px]"
