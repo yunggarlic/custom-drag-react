@@ -8,9 +8,6 @@ const dragStartingCoordinates = [
 ];
 
 const DragArea = () => {
-    useEffect(() => {
-        console.log("do i happen before yall"), [];
-    });
     return (
         <div className="absolute top-0 left-0 bottom-[90px] right-[90px]">
             {dragStartingCoordinates.map((coords, i) => (

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useContext } from "react";
 import { MouseContext } from "../utils/MouseObserver";
+import { useLocalStorage } from "../utils/useLocalStorage";
 import Image from "next/image";
 
 const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
@@ -7,7 +8,10 @@ const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 const Draggable = ({ coords, uid }) => {
     const [loaded, setLoaded] = useState(false);
     const draggable = useRef(null);
-    const [dragCoordinates, setDragCoordinates] = useState({ top: 0, left: 0 });
+    const [dragCoordinates, setDragCoordinates] = useLocalStorage(uid, {
+        top: 0,
+        left: 0,
+    });
     const [localZIndex, setLocalZIndex] = useState(0);
     const { mouseX, mouseY, dragging, offset, stateDraggable, zIndex } =
         useContext(MouseContext);
@@ -33,27 +37,36 @@ const Draggable = ({ coords, uid }) => {
         } else {
             draggable.current.style.outline = "none";
         }
-    }, [mouseX, mouseY, offset, dragging, stateDraggable, zIndex]);
+    }, [
+        mouseX,
+        mouseY,
+        offset,
+        dragging,
+        stateDraggable,
+        zIndex,
+        setDragCoordinates,
+    ]);
+
+    // useEffect(() => {
+    //     if (localStorage[`tf${uid}`]) {
+    //         setDragCoordinates(JSON.parse(localStorage[`tf${uid}`]));
+    //     }
+
+    //     if (loaded) {
+    //         if (!localStorage.getItem(`tf${uid}`)) {
+    //             localStorage[`tf${uid}`] = JSON.stringify(coords);
+    //             setDragCoordinates(coords);
+    //         }
+    //         // else {
+    //         //     const coordinates = localStorage[`tf${uid}`];
+    //         //     console.log(coordinates);
+    //         //     setDragCoordinates(coordinates);
+    //         // }
+    //     } else setLoaded(true);
+    // }, [coords, loaded, uid]);
 
     useEffect(() => {
-        if (localStorage[`tf${uid}`]) {
-            setDragCoordinates(JSON.parse(localStorage[`tf${uid}`]));
-        }
-
-        if (loaded) {
-            if (!localStorage.getItem(`tf${uid}`)) {
-                localStorage[`tf${uid}`] = JSON.stringify(coords);
-                setDragCoordinates(coords);
-            }
-            // else {
-            //     const coordinates = localStorage[`tf${uid}`];
-            //     console.log(coordinates);
-            //     setDragCoordinates(coordinates);
-            // }
-        } else setLoaded(true);
-    }, [coords, loaded, uid]);
-
-    useEffect(() => {
+        console.log(dragCoordinates);
         if (loaded && dragging) {
             localStorage[`tf${uid}`] = JSON.stringify(dragCoordinates);
         }
